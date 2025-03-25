@@ -68,34 +68,70 @@ exports.deleteIncome = async (req, res) => {
 
 // Download excel 
 
-exports.downloadIncomeExcel = async (req, res) => {
+// exports.downloadIncomeExcel = async (req, res) => {
 
-    const userId = req.user.id ; 
+//     const userId = req.user.id ; 
 
-    try{
-        const income = await Income.find({userId}).sort({date: -1})
+//     try{
+//         const income = await Income.find({userId}).sort({date: -1})
 
-        // Prepare data for excel 
+//         // Prepare data for excel 
 
-        const data = income.map((item) => ({
-            Source: item.source, 
-            Amount: item.amount, 
-            Date: item.date 
-        }))
+//         const data = income.map((item) => ({
+//             Source: item.source, 
+//             Amount: item.amount, 
+//             Date: item.date 
+//         }))
 
-        const wb = xlsx.utils.book_new() ;  // create a new excel workbook 
-        const ws = xlsx.utils.json_to_sheet(data) ; // convert data into the worksheet 
+//         const wb = xlsx.utils.book_new() ;  // create a new excel workbook 
+//         const ws = xlsx.utils.json_to_sheet(data) ; // convert data into the worksheet 
         
-        xlsx.utils.book_append_sheet(wb, ws, 'Income') ; 
-        xlsx.writeFile(wb, 'income_details.xlsx')
+//         xlsx.utils.book_append_sheet(wb, ws, 'Income') ; 
+//         xlsx.writeFile(wb, 'income_details.xlsx')
 
-        res.download("income_details.xlsx")
+//         res.download("income_details.xlsx")
 
-    }catch(error){
-        res.status(500).json({
-            message: 'Download failed', 
-            error: error.message 
-        })
-    }
-}
+//     }catch(error){
+//         res.status(500).json({
+//             message: 'Download failed', 
+//             error: error.message 
+//         })
+//     }
+// }
+
+exports.downloadIncomeExcel = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const income = await Income.find({ userId }).sort({ date: -1 });
+
+    // Prepare data for Excel
+    const data = income.map((item) => ({
+      Source: item.source,
+      Amount: item.amount,
+      Date: item.date,
+    }));
+
+    // Create a new workbook and worksheet
+    const wb = xlsx.utils.book_new();
+    const ws = xlsx.utils.json_to_sheet(data);
+    xlsx.utils.book_append_sheet(wb, ws, "Income");
+
+    // Write the workbook to a buffer
+    const buffer = xlsx.write(wb, { type: "buffer", bookType: "xlsx" });
+
+    // Set response headers for file download
+    res.setHeader("Content-Disposition", "attachment; filename=income_details.xlsx");
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+    // Send the buffer as a response
+    res.send(buffer);
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Download failed",
+      error: error.message,
+    });
+  }
+};
 

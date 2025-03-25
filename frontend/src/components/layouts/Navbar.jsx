@@ -5,6 +5,8 @@ import SideMenu from './SideMenu'
 const Navbar = () => {
 
     const [openSideMenu, setOpenSideMenu] = useState(false)
+    const [activeMenu, setActiveMenu] = useState('Dashboard')
+
 
   return (
     <div className='flex gap-5 bg-white border border-b border-gray-200/50 backdrop-blur-[2px] py-4 px-7 sticky top-0 z-30'>
@@ -23,7 +25,7 @@ const Navbar = () => {
           }
         </button>
 
-        <h2 className='text-lg font-medium text-black'>Expense Tracker</h2>
+        <h2 className='text-lg text-black font-bold'>PaisaWaisa₹</h2>
 
         {
           openSideMenu && (

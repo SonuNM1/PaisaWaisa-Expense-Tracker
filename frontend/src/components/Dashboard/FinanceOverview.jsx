@@ -3,12 +3,12 @@ import CustomPieCart from '../Charts/CustomPieCart'
 
 const COLORS = ['#875CF5', '#FA2C37', '#FF6900']
 
-const FinanceOverview = ({totalBalance, totalIncome, totalExpense}) => {
+const FinanceOverview = ({totalBalance, totalIncome, totalExpenses}) => {
 
   const balanceData = [
-    {name: 'Total Balance', amount: totalBalance}, 
-    {name: 'Total Expenses', amount: totalExpense}, 
-    {name: 'Total Income', amount: totalIncome}
+    {name: 'Total Balance', amount: totalBalance || 0}, 
+    {name: 'Total Expenses', amount: totalExpenses || 0}, 
+    {name: 'Total Income', amount: totalIncome || 0}
   ]
 
   return (
@@ -20,7 +20,7 @@ const FinanceOverview = ({totalBalance, totalIncome, totalExpense}) => {
       <CustomPieCart
         data={balanceData}
         label='Total Balance'
-        totalAmount={`$${totalBalance}`}
+        totalAmount={`₹${totalBalance}`}
         color={COLORS}
         showTextAnchor
       />

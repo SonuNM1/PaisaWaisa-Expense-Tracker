@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useUserAuth } from "../../hooks/useUserAuth";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
 import axiosInstance from "../../utils/axiosInstance";
-import { API_PATHS } from '../../utils/apiPaths'
+import { API_PATHS } from "../../utils/apiPaths";
 import toast from "react-hot-toast";
 import ExpenseOverview from "../../components/Expense/ExpenseOverview";
 import Modal from "../../components/Modal";
@@ -22,119 +22,126 @@ const Expense = () => {
 
   const [openAddExpenseModal, setOpenAddExpenseModal] = useState(false);
 
-  // Get All Expense Details  
+  // Get All Expense Details
 
   const fetchExpenseDetails = async () => {
-    if(loading) return ; 
+    if (loading) return;
 
-    setLoading(true) ; 
+    setLoading(true);
 
-    try{
-      const response = await axiosInstance.get(
-        `${API_PATHS.EXPENSE.GET_ALL_EXPENSE}`  
-      )
+    try {
+      const response = await axiosInstance.post(
+        `${API_PATHS.EXPENSE.GET_ALL_EXPENSE}`
+      );
 
-      if(response.data){
-        setExpenseData(response.data) ; 
+      if (response.data) {
+        setExpenseData(response.data);
       }
-    }catch(error){
-      console.log('Something went wrong! Please try again.', error)
-    }finally {
-      setLoading(false) ; 
+    } catch (error) {
+      console.log("Something went wrong! Please try again.", error);
+    } finally {
+      setLoading(false);
     }
+  };
 
-  }
-
-  // Handle Add Income 
+  // Handle Add Income
 
   const handleAddExpense = async (expense) => {
+    const { category, amount, date, icon } = expense;
 
-    const {category, amount, date, icon} = expense ; 
+    // Validation checks
 
-    // Validation checks 
-
-    if(!category.trim()){
-      toast.error('Category is required!') ; 
-      return ; 
+    if (!category.trim()) {
+      toast.error("Category is required!");
+      return;
     }
 
-    if(!amount || isNaN(amount) || Number(amount) <= 0){
-      toast.error('Amount should be a valid number greater than 0.')
-      return ; 
+    if (!amount || isNaN(amount) || Number(amount) <= 0) {
+      toast.error("Amount should be a valid number greater than 0.");
+      return;
     }
 
-    if(!date){
-      toast.error('Date is required!')
-      return ; 
+    if (!date) {
+      toast.error("Date is required!");
+      return;
     }
 
-    try{
+    try {
       await axiosInstance.post(API_PATHS.EXPENSE.ADD_EXPENSE, {
-        category, 
-        amount, 
-        date, 
-        icon 
-      })
+        category,
+        amount,
+        date,
+        icon,
+      });
 
-      setOpenAddExpenseModal(false) ; 
+      setOpenAddExpenseModal(false);
 
-      toast.success('Expense added successfully!') ; 
-      fetchExpenseDetails()
-    }catch(error){  
-      console.error('Error adding expense: ', error.response?.data?.message || error.message ) ; 
+      toast.success("Expense added successfully!");
+      fetchExpenseDetails();
+    } catch (error) {
+      console.error(
+        "Error adding expense: ",
+        error.response?.data?.message || error.message
+      );
     }
+  };
 
-  }
+  // Delete Expense
 
-   // Delete Expense 
+  const deleteExpense = async (id) => {
+    try {
+      await axiosInstance.delete(API_PATHS.EXPENSE.DELETE_EXPENSE(id));
 
-   const deleteExpense = async (id) => {
-    try{
-      await axiosInstance.delete(API_PATHS.EXPENSE.DELETE_EXPENSE(id))
+      setOpenDeleteAlert({ show: false, data: null });
 
-      setOpenDeleteAlert({show: false, data: null})
-
-      toast.success('Expense details deleted successfully!')
-      fetchExpenseDetails() ; 
-    }catch(error){
-      console.error('Error deleting expenses: ', error.response?.data?.message || error.message)
+      toast.success("Expense details deleted successfully!");
+      fetchExpenseDetails();
+    } catch (error) {
+      console.error(
+        "Error deleting expenses: ",
+        error.response?.data?.message || error.message
+      );
     }
-  }
+  };
 
-  // Handle Download Expense Details 
+  // Handle Download Expense Details
 
   const handleDownloadExpenseDetails = async () => {
-    try{
-      const response = await axiosInstance.get(
-        API_PATHS.EXPENSE.DOWNLOAD_EXPENSE, 
+    try {
+      const response = await axiosInstance.post(
+        API_PATHS.EXPENSE.DOWNLOAD_EXPENSE,
         {
-          responseType: 'blob'
+          responseType: "blob",
         }
-      )
+      );
 
-      // Create a URL for the blob 
+      // Create a URL for the blob
 
-      const url = window.URL.createObjectURL(new Blob(response.data))
-      const link = document.createElement('a')
-      link.href - url ; 
-      link.setAttribute('download', 'expense_details.xlsx')
+      // const url = window.URL.createObjectURL(new Blob(response.data));
 
-      document.body.appendChild(link) ; 
-      link.click() ; 
-      link.parentNode.removeChild(link)
-      window.URL.revokeObjectURL(url) ; 
+      const url = window.URL.createObjectURL(
+        new Blob([response.data], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        })
+      );
 
-    }catch(error){
-      console.error('Error downloading expense details:', error)
-      toast.error('Failed to download expense details! Please try again.')
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "expense_details.xlsx");
+
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading expense details:", error);
+      toast.error("Failed to download expense details! Please try again.");
     }
-  }
+  };
 
   useEffect(() => {
-    fetchExpenseDetails() ; 
-
-    return () => {}
-  },[])
+    fetchExpenseDetails();
+  }, []);
 
   return (
     <DashboardLayout activeMenu="Expense">
@@ -142,7 +149,7 @@ const Expense = () => {
         <div className="grid grid-cols-1 gap-6">
           <div className="">
             <ExpenseOverview
-              transactions={expenseData} 
+              transactions={expenseData}
               onExpenseIncome={() => setOpenAddExpenseModal(true)}
             />
           </div>
@@ -150,32 +157,30 @@ const Expense = () => {
           <ExpenseList
             transactions={expenseData}
             onDelete={(id) => {
-              setOpenDeleteAlert({show: true, data: id})
+              setOpenDeleteAlert({ show: true, data: id });
             }}
             onDownload={handleDownloadExpenseDetails}
           />
-
         </div>
 
         <Modal
           isOpen={openAddExpenseModal}
           onClose={() => setOpenAddExpenseModal(false)}
-          title='Add Expense'
+          title="Add Expense"
         >
-          <AddExpenseForm onAddExpense={handleAddExpense}/>
+          <AddExpenseForm onAddExpense={handleAddExpense} />
         </Modal>
 
         <Modal
-          isOpen={openAddExpenseModal}
-          onClose={() => setOpenDeleteAlert({show: false, data: null})}
-          title='Delete Expense'
+          isOpen={openDeleteAlert.show} // ✅ Correct state
+          onClose={() => setOpenDeleteAlert({ show: false, data: null })}
+          title="Delete Expense"
         >
           <DeleteAlert
-            content='Are you sure you want to delete this expense detail?'
+            content="Are you sure you want to delete this expense detail?"
             onDelete={() => deleteExpense(openDeleteAlert.data)}
           />
         </Modal>
-
       </div>
     </DashboardLayout>
   );

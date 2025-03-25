@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Input from '../Inputs/Input'
 import EmojiPickerPopup from '../EmojiPickerPopup'
 
-const AddExpenseForm = () => {
+const AddExpenseForm = ({onAddExpense}) => {
 
     const [income, setIncome] = useState({
         category: '', 

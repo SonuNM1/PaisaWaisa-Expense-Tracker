@@ -11,9 +11,9 @@ import { addThousandsSeparator } from '../../utils/helper'
 import RecentTransactions from '../../components/Dashboard/RecentTransactions'
 import FinanceOverview from '../../components/Dashboard/FinanceOverview'
 import ExpenseTransactions from './ExpenseTransactions'
-import last30DaysExpenses from '../../components/Dashboard/last30DaysExpenses'
 import RecentIncomeWithCharts from '../../components/Dashboard/RecentIncomeWithCharts'
 import RecentIncome from '../../components/Dashboard/RecentIncome'
+import Last30DaysExpenses from '../../components/Dashboard/Last30DaysExpenses'
 
 const Home = () => {
 
@@ -38,6 +38,8 @@ const Home = () => {
         setDashboardData(response.data)
       }
 
+      console.log('Dashboard data: ', response.data) ; 
+
     }catch(error){
       console.log('Something went wrong! Please try again.', error)
     }finally{
@@ -47,7 +49,6 @@ const Home = () => {
 
   useEffect(() =>{
     fetchDashboardData()
-    return () => {}
   })
 
   return (
@@ -69,7 +70,7 @@ const Home = () => {
           <InfoCard
             icon={<LuHandCoins/>}
             label='Total Expense'
-            value={addThousandsSeparator(dashboardData?.totalExpense || 0)}
+            value={addThousandsSeparator(dashboardData?.totalExpenses || 0)}
             color='bg-red-500'
           />
         </div>
@@ -77,7 +78,7 @@ const Home = () => {
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mt-6'>
 
           <RecentTransactions
-            transactions={dashboardData?.RecentTransactions}
+            transactions={dashboardData?.recentTransactions}
             onSeeMore={() => navigate('/expense')}
           />
 
@@ -92,7 +93,7 @@ const Home = () => {
             onSeeMore={() => navigate('/expense')}
           />
 
-          <last30DaysExpenses
+          <Last30DaysExpenses
             data={dashboardData?.last30DaysExpenses?.transactions || []}
           />
 

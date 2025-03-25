@@ -68,34 +68,75 @@ exports.deleteExpense = async (req, res) => {
 
 // Download excel 
 
+// exports.downloadExpenseExcel = async (req, res) => {
+
+//     const userId = req.user.id ; 
+
+//     try{
+//         const expense = await Expense.find({userId}).sort({date: -1})
+
+//         // Prepare data for excel 
+
+//         const data = expense.map((item) => ({
+//             Category: item.category, 
+//             Amount: item.amount, 
+//             Date: item.date 
+//         }))
+
+//         const wb = xlsx.utils.book_new() ;  // create a new excel workbook 
+//         const ws = xlsx.utils.json_to_sheet(data) ; // convert data into the worksheet 
+//         xlsx.utils.book_append_sheet(wb, ws, 'Expense') ; 
+
+
+
+//         xlsx.writeFile(wb, 'expense_details.xlsx')
+
+//         res.download("expense_details.xlsx")
+
+//     }catch(error){
+//         res.status(500).json({
+//             message: 'Download failed', 
+//             error: error.message 
+//         })
+//     }
+// }
+
 exports.downloadExpenseExcel = async (req, res) => {
+  const userId = req.user.id;
 
-    const userId = req.user.id ; 
+  try {
+    const expense = await Expense.find({ userId }).sort({ date: -1 });
 
-    try{
-        const expense = await Expense.find({userId}).sort({date: -1})
+    // Prepare data for excel
+    const data = expense.map((item) => ({
+      Category: item.category,
+      Amount: item.amount,
+      Date: item.date.toISOString().split('T')[0], // Format date properly
+    }));
 
-        // Prepare data for excel 
+    const wb = xlsx.utils.book_new(); // create a new excel workbook
+    const ws = xlsx.utils.json_to_sheet(data); // convert data into the worksheet
+    xlsx.utils.book_append_sheet(wb, ws, 'Expense');
 
-        const data = expense.map((item) => ({
-            Category: item.category, 
-            Amount: item.amount, 
-            Date: item.date 
-        }))
+    // Write workbook to buffer
+    const buffer = xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
-        const wb = xlsx.utils.book_new() ;  // create a new excel workbook 
-        const ws = xlsx.utils.json_to_sheet(data) ; // convert data into the worksheet 
-        
-        xlsx.utils.book_append_sheet(wb, ws, 'Expense') ; 
-        xlsx.writeFile(wb, 'expense_details.xlsx')
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader('Content-Disposition', 'attachment; filename=expense_details.xlsx');
 
-        res.download("expense_details.xlsx")
+    res.send(buffer);
+  } catch (error) {
+    res.status(500).json({
+      message: 'Download failed',
+      error: error.message,
+    });
+  }
+};
 
-    }catch(error){
-        res.status(500).json({
-            message: 'Download failed', 
-            error: error.message 
-        })
-    }
-}
+
+
+  
 
