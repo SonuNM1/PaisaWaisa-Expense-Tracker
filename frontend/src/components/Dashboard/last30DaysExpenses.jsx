@@ -10,7 +10,6 @@ const last30DaysExpenses = ({data}) => {
     const result = prepareExpenseBarChartData(data) ; 
     setChartData(result)
 
-    result () => {}
   }, [data])
 
   return (

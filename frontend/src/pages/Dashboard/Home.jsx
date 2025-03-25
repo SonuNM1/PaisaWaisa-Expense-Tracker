@@ -58,7 +58,7 @@ const Home = () => {
             icon={<IoMdCard/>}
             label='Total Balance'
             value={addThousandsSeparator(dashboardData?.totalBalance || 0)}
-            color='bg-primary'
+            color='bg-violet-600'
           />
           <InfoCard
             icon={<LuWalletMinimal/>}
@@ -89,7 +89,7 @@ const Home = () => {
 
           <ExpenseTransactions
             transactions={dashboardData?.last30DaysExpenses?.transactions || []}
-            onClick={() => navigate('/expense')}
+            onSeeMore={() => navigate('/expense')}
           />
 
           <last30DaysExpenses

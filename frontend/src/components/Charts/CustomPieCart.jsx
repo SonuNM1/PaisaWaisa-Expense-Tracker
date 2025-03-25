@@ -14,7 +14,7 @@ const CustomPieCart = ({
   data,
   label,
   totalAmount,
-  colors,
+  color,
   showTextAnchor,
 }) => {
   return (
@@ -31,10 +31,10 @@ const CustomPieCart = ({
           labelLine={false}
         >
             {
-                data.map((entry, index) => (
+                data?.length > 0 && data.map((entry, index) => (
                     <Cell
                         key={`cell-${index}`}
-                        fill={colors[index % colors.length]}
+                        fill={color[index % color?.length]}
                     />
                 ))
             }
